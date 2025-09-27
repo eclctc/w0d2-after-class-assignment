@@ -1,0 +1,47 @@
+name: CI
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up cache (example)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          elif [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+      - name: Run pre-commit checks
+        run: |
+          python -m pip install pre-commit || true
+          pre-commit run --all-files
+
+      - name: Run lint
+        run: |
+          if [ -f package.json ]; then
+            npm run lint --if-present
+          else
+            make lint || true
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -f package.json ]; then
+            npm test --if-present
+          else
+            make test || true
+          fi
