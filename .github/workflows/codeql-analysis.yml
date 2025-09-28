@@ -1,16 +1,20 @@
 name: "CodeQL Scan"
+
 on:
   push:
     branches: [ main ]
   pull_request:
-    # Run on PRs
     types: [opened, synchronize, reopened]
   schedule:
     - cron: '0 3 * * 0'
+
 jobs:
   analyze:
     name: Analyze (CodeQL)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
