@@ -30,10 +30,10 @@ def create_user():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    
+
     # Security Issue: Weak password hashing
     hashed_password = hashlib.md5(password.encode()).hexdigest()
-    
+
     conn = get_db_connection()
     # Security Issue: SQL injection vulnerability
     conn.execute(
@@ -41,7 +41,7 @@ def create_user():
     )
     conn.commit()
     conn.close()
-    
+
     # Security Issue: Logging sensitive information
     print(f"Created user: {username} with password: {password}")
     return jsonify({"message": "User created", "username": username})
@@ -51,15 +51,15 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    
+
     hashed_password = hashlib.md5(password.encode()).hexdigest()
-    
+
     conn = get_db_connection()
     # Security Issue: SQL injection vulnerability
     query = f"SELECT * FROM users WHERE username='{username}' AND password='{hashed_password}'"
     user = conn.execute(query).fetchone()
     conn.close()
-    
+
     if user:
         return jsonify({"message": "Login successful", "user_id": user[0]})
     return jsonify({"message": "Invalid credentials"}), 401
